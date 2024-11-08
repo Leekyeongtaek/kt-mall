@@ -80,11 +80,17 @@ private void linkExceptionHandler(Exception e, ProductMarket productMarket) {
 ```
 @Override
 public String createProduct(Member member, ProductMarket productMarket) throws IOException {
+    1. String json 데이터 변환
     String jsonBody = MyUtil.convertToJson(new RequestLinkForm(productMarket));
+    2. 헤더 생성 메서드 호출 및 HTTP 엔티티 객체 생성
     HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, createHeader(member.getMemberMarket(productMarket.getMarketType())));
+    3. Http 유틸을 통해 메이크샵 상품 등록 API 호출
     String responseBody = HttpUtil.post(MarketURLUtil.getMakeShopCreateProduct(member.getMemberMarket(productMarket.getMarketType())), httpEntity);
+    3-1. 메이크샵 결과 파일을 객체 생성
     ResponseLinkForm responseLinkForm = getResponseLinkForm(responseBody);
+    4. 응답 코드에 따른 성공/실패 유효성 검증
     ReturnCode.validate(responseLinkForm.getReturnCode());
+    5. 마켓에서 발급 받은 상품 코드 반환
     return responseLinkForm.getDatas().getUid();
 }
 
@@ -102,5 +108,35 @@ private ResponseLinkForm getResponseLinkForm(String responseBody) throws IOExcep
     String fileName = "200".equals(responseBody) ? "makeshop-success.json" : "makeshop-fail.json";
     byte[] bytes = MyUtil.getMarketFileObject(fileName);
     return objectMapper.reader().readValue(bytes, ResponseLinkForm.class);
+}
+
+메이크샵 응답 코드 열거 클래스
+@Getter
+public enum ReturnCode {
+    SUCCESS("0000", "성공"),
+    SHOP_EXPIRATION("9998", "상점 이용 기간이 만료되었습니다."),
+    NOT_FOUND_PRODUCT("9071", "상품번호가 없습니다."),
+    NO_DATA("9201", "조회할 주문번호가 없습니다."),
+    NO_API_KEY("9001", "상점키가 없습니다.");
+
+    private final String code;
+    private final String message;
+
+    ReturnCode(String code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public static void validate(String code) {
+        if (SUCCESS.getCode().equals(code)) {
+            return;
+        }
+        for (ReturnCode returnCode : ReturnCode.values()) {
+            if (returnCode.getCode().equals(code)) {
+                throw new RuntimeException(returnCode.getMessage());
+            }
+        }
+        throw new RuntimeException("해당하는 응답코드를 찾을 수 없습니다. 코드 번호 = " + code);
+    }
 }
 ```
