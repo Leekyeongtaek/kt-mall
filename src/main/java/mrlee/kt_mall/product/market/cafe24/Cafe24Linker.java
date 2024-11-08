@@ -5,12 +5,13 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import mrlee.kt_mall.common.util.HttpUtil;
 import mrlee.kt_mall.common.util.MyUtil;
+import mrlee.kt_mall.member.entity.Member;
 import mrlee.kt_mall.member.entity.MemberMarket;
+import mrlee.kt_mall.product.entity.ProductMarket;
 import mrlee.kt_mall.product.market.MarketLink;
 import mrlee.kt_mall.product.market.cafe24.dto.request.RequestLinkForm;
 import mrlee.kt_mall.product.market.cafe24.dto.response.AccessToken;
 import mrlee.kt_mall.product.market.cafe24.dto.response.LinkResponseForm;
-import mrlee.kt_mall.product.market.dto.RequestMarkerLinkForm;
 import mrlee.kt_mall.product.market.util.MarketURLUtil;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -32,10 +33,10 @@ public class Cafe24Linker implements MarketLink {
     }
 
     @Override
-    public String createProduct(RequestMarkerLinkForm dto) throws IOException {
-        String jsonBody = MyUtil.convertToJson(new RequestLinkForm(dto.getProductMarket()));
-        HttpEntity<String> entity = new HttpEntity<>(jsonBody, createHeader(dto.getMemberMarket()));
-        String responseBody = HttpUtil.post(MarketURLUtil.getCafe24CreateProduct(dto.getMemberMarket()), entity);
+    public String createProduct(Member member, ProductMarket productMarket) throws IOException {
+        String jsonBody = MyUtil.convertToJson(new RequestLinkForm(productMarket));
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, createHeader(member.getMemberMarket(productMarket.getMarketType())));
+        String responseBody = HttpUtil.post(MarketURLUtil.getCafe24CreateProduct(member.getMemberMarket(productMarket.getMarketType())), entity);
         LinkResponseForm linkResponseForm = getLinkResponseForm(responseBody);
         responseCodeValidate(linkResponseForm.getReturnCode());
         return linkResponseForm.getProduct().getProductCode();

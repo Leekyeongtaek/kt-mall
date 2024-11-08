@@ -4,14 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import mrlee.kt_mall.member.entity.MemberMarket;
-import mrlee.kt_mall.product.market.MarketLink;
-import mrlee.kt_mall.product.market.util.MarketURLUtil;
-import mrlee.kt_mall.product.market.makeshop.dto.request.RequestLinkForm;
-import mrlee.kt_mall.product.market.makeshop.dto.response.ResponseLinkForm;
-import mrlee.kt_mall.product.market.dto.RequestMarkerLinkForm;
 import mrlee.kt_mall.common.util.HttpUtil;
 import mrlee.kt_mall.common.util.MyUtil;
+import mrlee.kt_mall.member.entity.Member;
+import mrlee.kt_mall.member.entity.MemberMarket;
+import mrlee.kt_mall.product.entity.ProductMarket;
+import mrlee.kt_mall.product.market.MarketLink;
+import mrlee.kt_mall.product.market.makeshop.dto.request.RequestLinkForm;
+import mrlee.kt_mall.product.market.makeshop.dto.response.ResponseLinkForm;
+import mrlee.kt_mall.product.market.util.MarketURLUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,10 +31,10 @@ public class MakeShopLinker implements MarketLink {
     }
 
     @Override
-    public String createProduct(RequestMarkerLinkForm dto) throws IOException {
-        String jsonBody = MyUtil.convertToJson(new RequestLinkForm(dto.getProductMarket()));
-        HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, createHeader(dto.getMemberMarket()));
-        String responseBody = HttpUtil.post(MarketURLUtil.getMakeShopCreateProduct(dto.getMemberMarket()), httpEntity);
+    public String createProduct(Member member, ProductMarket productMarket) throws IOException {
+        String jsonBody = MyUtil.convertToJson(new RequestLinkForm(productMarket));
+        HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, createHeader(member.getMemberMarket(productMarket.getMarketType())));
+        String responseBody = HttpUtil.post(MarketURLUtil.getMakeShopCreateProduct(member.getMemberMarket(productMarket.getMarketType())), httpEntity);
         ResponseLinkForm responseLinkForm = getResponseLinkForm(responseBody);
         ReturnCode.validate(responseLinkForm.getReturnCode());
         return responseLinkForm.getDatas().getUid();

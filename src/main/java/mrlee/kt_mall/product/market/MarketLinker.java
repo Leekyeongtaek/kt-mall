@@ -1,11 +1,11 @@
 package mrlee.kt_mall.product.market;
 
 import lombok.RequiredArgsConstructor;
+import mrlee.kt_mall.member.entity.Member;
 import mrlee.kt_mall.product.entity.MARKET_TYPE;
 import mrlee.kt_mall.product.entity.ProductMarket;
 import mrlee.kt_mall.product.entity.ProductMarketLinkHistory;
 import mrlee.kt_mall.product.market.cafe24.Cafe24Linker;
-import mrlee.kt_mall.product.market.dto.RequestMarkerLinkForm;
 import mrlee.kt_mall.product.market.makeshop.MakeShopLinker;
 import mrlee.kt_mall.product.repository.ProductMarketLinkHistoryRepository;
 import org.springframework.stereotype.Component;
@@ -30,11 +30,11 @@ public class MarketLinker {
         };
     }
 
-    public void linkMarketProduct(RequestMarkerLinkForm form) {
-        ProductMarket productMarket = form.getProductMarket();
+    public void linkMarketProduct(Member member, ProductMarket productMarket) {
         MarketLink marketLink = getProductMarketLink(productMarket.getMarketType());
         try {
-            form.getProductMarket().linkComplete(marketLink.createProduct(form));
+            String productCode = marketLink.createProduct(member, productMarket);
+            productMarket.linkComplete(productCode);
             productMarketLinkHistoryRepository.save(new ProductMarketLinkHistory(productMarket.getId(), SUCCESS, "성공"));
         } catch (Exception e) {
             linkExceptionHandler(e, productMarket.getId());

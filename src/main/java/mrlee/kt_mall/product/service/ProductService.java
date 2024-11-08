@@ -9,8 +9,6 @@ import mrlee.kt_mall.product.dto.SaveProduct;
 import mrlee.kt_mall.product.dto.SaveProductMarket;
 import mrlee.kt_mall.product.entity.Product;
 import mrlee.kt_mall.product.entity.ProductMarket;
-import mrlee.kt_mall.product.market.dto.RequestMarkerLinkForm;
-import mrlee.kt_mall.product.repository.ProductMarketLinkHistoryRepository;
 import mrlee.kt_mall.product.repository.ProductMarketRepository;
 import mrlee.kt_mall.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -46,12 +44,8 @@ public class ProductService {
 
         productMarkets.forEach(ProductMarket::isLinked);
 
-        List<RequestMarkerLinkForm> requestMarkerLinkForms = productMarkets.stream()
-                .map(pm -> new RequestMarkerLinkForm(pm, member))
-                .toList();
-
-        for (RequestMarkerLinkForm marketLinkForm : requestMarkerLinkForms) {
-            marketLinker.linkMarketProduct(marketLinkForm);
+        for (ProductMarket productMarket : productMarkets) {
+            marketLinker.linkMarketProduct(member, productMarket);
         }
     }
 }

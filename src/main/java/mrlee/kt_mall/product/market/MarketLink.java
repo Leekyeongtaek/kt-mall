@@ -1,6 +1,7 @@
 package mrlee.kt_mall.product.market;
 
-import mrlee.kt_mall.product.market.dto.RequestMarkerLinkForm;
+import mrlee.kt_mall.member.entity.Member;
+import mrlee.kt_mall.product.entity.ProductMarket;
 
 import java.io.IOException;
 
@@ -12,7 +13,7 @@ import java.io.IOException;
  * 문의 관리: 문의 수집, 답변 저장, 쇼핑몰로 전송
  */
 public interface MarketLink {
-    String createProduct(RequestMarkerLinkForm requestMarkerLinkForm) throws IOException;
+    String createProduct(Member member, ProductMarket productMarket) throws IOException;
 
     void updateProduct() throws IOException;
 }
