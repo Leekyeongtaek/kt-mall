@@ -18,4 +18,4 @@
 <img width="800" alt="KT-MALL ERD", src="">
 
 ### 상품 마켓 연동 객체 관계도
-<img width="800" alt="KT-MALL ENTITY", src="">
+<img width="800" alt="KT-MALL ENTITY", src="https://github.com/user-attachments/assets/2880ee6d-31e6-414f-a08f-1ea611c0b722">
