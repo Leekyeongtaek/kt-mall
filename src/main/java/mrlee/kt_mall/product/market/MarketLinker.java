@@ -37,18 +37,19 @@ public class MarketLinker {
             productMarket.linkComplete(productCode);
             productMarketLinkHistoryRepository.save(new ProductMarketLinkHistory(productMarket.getId(), SUCCESS, "성공"));
         } catch (Exception e) {
-            linkExceptionHandler(e, productMarket.getId());
+            linkExceptionHandler(e, productMarket);
         }
     }
 
-    private void linkExceptionHandler(Exception e, Long productMarketId) {
+    private void linkExceptionHandler(Exception e, ProductMarket productMarket) {
         String message;
         if (e instanceof RuntimeException) {
             message = e.getMessage();
         } else {
             message = "마켓 연동 처리중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
         }
-        ProductMarketLinkHistory productMarketLinkHistory = new ProductMarketLinkHistory(productMarketId, FAIL, message);
+        ProductMarketLinkHistory productMarketLinkHistory = new ProductMarketLinkHistory(productMarket.getId(), FAIL, message);
         productMarketLinkHistoryRepository.save(productMarketLinkHistory);
+        productMarket.linkFail();
     }
 }
