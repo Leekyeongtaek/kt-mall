@@ -16,6 +16,6 @@
 
 ### 테이블 ERD
 ![이경택의 kt-mall](https://github.com/user-attachments/assets/b6f52473-d2e6-48d8-8cb1-c283f641e609)
-
+</br>
 ### 상품 마켓 연동 객체 관계도
 ![서비스 호출 흐름도](https://github.com/user-attachments/assets/7b47a6e9-078c-4187-8a44-e72b996a1af9)
