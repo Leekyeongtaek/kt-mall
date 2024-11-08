@@ -1,4 +1,4 @@
-package mrlee.kt_mall.common;
+package mrlee.kt_mall.common.audit;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class AuditingTime {
+public class AuditingDateTime {
 
     @CreatedDate
     private LocalDateTime createdDate;
