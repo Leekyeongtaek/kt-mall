@@ -18,7 +18,7 @@
 ![이경택의 kt-mall](https://github.com/user-attachments/assets/b6f52473-d2e6-48d8-8cb1-c283f641e609)
 
 ### 상품 마켓 연동 객체 관계도
-![서비스 호출 흐름도](https://github.com/user-attachments/assets/7b47a6e9-078c-4187-8a44-e72b996a1af9)
+<img width="589" alt="스크린샷 2024-11-08 오후 9 31 32" src="https://github.com/user-attachments/assets/812f4a78-8d22-4203-af69-cb46b8e0fbf3">
 
 ### 마켓 상품 연동 과정(메이크샵) 예시
 - 서비스 계층: ProductService
