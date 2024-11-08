@@ -6,8 +6,6 @@
 - 온라인 마켓의 API를 사용하려면 마켓별로 발급된 키가 필요하기 때문에, http 요청은 객체만 만들고 실제 호출하지 않도록 코드를 작성했습니다.
 - 마켓별 성공/실패 응답 데이터는 resources/response/cafe24.json, makeshop.json 파일 데이터로 대체하였습니다.
 
-## 목차 바로가기
-
 ### 프로젝트 상세
 - IDE : IntelliJ
 - Java : 17
@@ -30,7 +28,7 @@ public void linkProductMarket(SaveProductMarketLink saveProductMarketLink) {
     List<ProductMarket> productMarkets = productMarketRepository.findAllById(saveProductMarketLink.getProductMarketIds());
     3. 마켓 등록 여부 유효성 검사
     productMarkets.forEach(ProductMarket::isLinked);
-    4. 반복문을 통해 연동 메소드 호출
+    4. 반복문을 통해 연동 메서드 호출
     for (ProductMarket productMarket : productMarkets) {
         marketLinker.linkMarketProduct(member, productMarket);
     }
@@ -38,6 +36,7 @@ public void linkProductMarket(SaveProductMarketLink saveProductMarketLink) {
 ```
 - 연동 관리 객체: MarketLinker
 ```
+연동 구현 클래스 조회 메서드
 private MarketLink getProductMarketLink(MARKET_TYPE marketType) {
     return switch (marketType) {
         case CAFE24 -> Cafe24Linker.getInstance();
@@ -62,6 +61,7 @@ public void linkMarketProduct(Member member, ProductMarket productMarket) {
     }
 }
 
+연동 중 예외 발생 처리 메서드
 private void linkExceptionHandler(Exception e, ProductMarket productMarket) {
     String message;
     if (e instanceof RuntimeException) {
@@ -78,4 +78,29 @@ private void linkExceptionHandler(Exception e, ProductMarket productMarket) {
 ```
 - 메이크샵 구현 객체: MakeShopLinker
 ```
+@Override
+public String createProduct(Member member, ProductMarket productMarket) throws IOException {
+    String jsonBody = MyUtil.convertToJson(new RequestLinkForm(productMarket));
+    HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, createHeader(member.getMemberMarket(productMarket.getMarketType())));
+    String responseBody = HttpUtil.post(MarketURLUtil.getMakeShopCreateProduct(member.getMemberMarket(productMarket.getMarketType())), httpEntity);
+    ResponseLinkForm responseLinkForm = getResponseLinkForm(responseBody);
+    ReturnCode.validate(responseLinkForm.getReturnCode());
+    return responseLinkForm.getDatas().getUid();
+}
+
+HTTP 헤더 생성 메서드
+private HttpHeaders createHeader(MemberMarket memberMarket) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.add("Shopkey", memberMarket.getApiKey1());
+    headers.add("Licensekey", memberMarket.getApiKey2());
+    return headers;
+}
+
+메이크샵 응답 파일 조회 메서드
+private ResponseLinkForm getResponseLinkForm(String responseBody) throws IOException {
+    String fileName = "200".equals(responseBody) ? "makeshop-success.json" : "makeshop-fail.json";
+    byte[] bytes = MyUtil.getMarketFileObject(fileName);
+    return objectMapper.reader().readValue(bytes, ResponseLinkForm.class);
+}
 ```
