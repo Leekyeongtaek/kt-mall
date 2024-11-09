@@ -85,37 +85,50 @@ public interface MarketLink {
 ```
 - 메이크샵 구현 객체: MakeShopLinker
 ```
-@Override
-public String createProduct(Member member, ProductMarket productMarket) throws IOException {
-    1. String json 데이터 변환
-    String jsonBody = MyUtil.convertToJson(new RequestLinkForm(productMarket));
-    2. 헤더 생성 메서드 호출 및 HTTP 엔티티 객체 생성
-    HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, createHeader(member.getMemberMarket(productMarket.getMarketType())));
-    3. Http 유틸을 통해 메이크샵 상품 등록 API 호출
-    String responseBody = HttpUtil.post(MarketURLUtil.getMakeShopCreateProduct(member.getMemberMarket(productMarket.getMarketType())), httpEntity);
-    3-1. 메이크샵 결과 파일을 객체 생성
-    ResponseLinkForm responseLinkForm = getResponseLinkForm(responseBody);
-    4. 응답 코드에 따른 성공/실패 유효성 검증
-    ReturnCode.validate(responseLinkForm.getReturnCode());
-    5. 마켓에서 발급 받은 상품 코드 반환
-    return responseLinkForm.getDatas().getUid();
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class MakeShopLinker implements MarketLink {
+
+    public static final MakeShopLinker MAKE_SHOP_LINKER = new MakeShopLinker();
+    private final ObjectMapper objectMapper = MyUtil.getCustomObjectMapper();
+
+    public static MakeShopLinker getInstance() {
+        return MAKE_SHOP_LINKER;
+    }
+
+    @Override
+    public String createProduct(Member member, ProductMarket productMarket) throws IOException {
+        1. String json 데이터 변환
+        String jsonBody = MyUtil.convertToJson(new RequestLinkForm(productMarket));
+        2. 헤더 생성 메서드 호출 및 HTTP 엔티티 객체 생성
+        HttpEntity<String> httpEntity = new HttpEntity<>(jsonBody, createHeader(member.getMemberMarket(productMarket.getMarketType())));
+        3. Http 유틸을 통해 메이크샵 상품 등록 API 호출
+        String responseBody = HttpUtil.post(MarketURLUtil.getMakeShopCreateProduct(member.getMemberMarket(productMarket.getMarketType())), httpEntity);
+        3-1. 메이크샵 결과 파일을 객체 생성
+        ResponseLinkForm responseLinkForm = getResponseLinkForm(responseBody);
+        4. 응답 코드에 따른 성공/실패 유효성 검증
+        ReturnCode.validate(responseLinkForm.getReturnCode());
+        5. 마켓에서 발급 받은 상품 코드 반환
+        return responseLinkForm.getDatas().getUid();
+    }
+    
+    HTTP 헤더 생성 메서드
+    private HttpHeaders createHeader(MemberMarket memberMarket) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Shopkey", memberMarket.getApiKey1());
+        headers.add("Licensekey", memberMarket.getApiKey2());
+        return headers;
+    }
+    
+    메이크샵 응답 파일 조회 메서드
+    private ResponseLinkForm getResponseLinkForm(String responseBody) throws IOException {
+        String fileName = "200".equals(responseBody) ? "makeshop-success.json" : "makeshop-fail.json";
+        byte[] bytes = MyUtil.getMarketFileObject(fileName);
+        return objectMapper.reader().readValue(bytes, ResponseLinkForm.class);
+    }
 }
 
-HTTP 헤더 생성 메서드
-private HttpHeaders createHeader(MemberMarket memberMarket) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.add("Shopkey", memberMarket.getApiKey1());
-    headers.add("Licensekey", memberMarket.getApiKey2());
-    return headers;
-}
 
-메이크샵 응답 파일 조회 메서드
-private ResponseLinkForm getResponseLinkForm(String responseBody) throws IOException {
-    String fileName = "200".equals(responseBody) ? "makeshop-success.json" : "makeshop-fail.json";
-    byte[] bytes = MyUtil.getMarketFileObject(fileName);
-    return objectMapper.reader().readValue(bytes, ResponseLinkForm.class);
-}
 
 메이크샵 응답 코드 열거 클래스
 @Getter
