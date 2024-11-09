@@ -1,4 +1,4 @@
-# KT-MALL 프로젝트, 제작: 이경택
+# 이경택 포트폴리오: KT-MALL
 ## 주제
 - 온라인 마켓에 상품을 연동하는 프로그램
 
@@ -74,6 +74,13 @@ private void linkExceptionHandler(Exception e, ProductMarket productMarket) {
     productMarketLinkHistoryRepository.save(productMarketLinkHistory);
     3-2. 마켓 상품의 연동 상태를 연동실패로 변경
     productMarket.linkFail();
+}
+```
+- 마켓 연동 인터페이스
+```
+public interface MarketLink {
+    String createProduct(Member member, ProductMarket productMarket) throws IOException;
+    void updateProduct() throws IOException;
 }
 ```
 - 메이크샵 구현 객체: MakeShopLinker
